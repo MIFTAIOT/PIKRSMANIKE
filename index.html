@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIK-R CEMARA - SMAN 1 Kedamean</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-green: #00b894;
+            --secondary-green: #55efc4;
+            --dark-text: #2d3436;
+            --light-bg: #f8fbf9;
+            --gradient-bg: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05); border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .header-title { font-size: 1.3rem; font-weight: 700; background: var(--gradient-bg); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Wadah Kanan Header (Tombol Admin + Logo) */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Tombol Pintasan Admin */
+        .btn-admin {
+            text-decoration: none;
+            color: var(--primary-green);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 15px;
+            border: 1px solid var(--primary-green);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+        }
+        .btn-admin:hover {
+            background: var(--primary-green);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 184, 148, 0.2);
+        }
+
+        .logos { display: flex; gap: 10px; }
+        .logos img { height: 85px; width: auto; border-radius: 5px; } /* Tambah radius biar rapi jika logo kotak */
+
+        /* Responsif Tombol Admin di HP */
+        @media (max-width: 600px) {
+            .btn-admin span { display: none; } /* Sembunyikan tulisan "Admin", sisa ikon gembok */
+            .btn-admin { padding: 6px 10px; }
+            .logos img { height: 35px; }
+        }
+
+        /* --- HERO SECTION --- */
+        .hero { text-align: center; padding: 50px 0 20px; background: linear-gradient(to bottom, #ffffff, var(--light-bg)); }
+        .hero-content-wrapper { padding: 0 20px; max-width: 800px; margin: auto; }
+        .hero h1 { font-weight: 700; margin-bottom: 15px; font-size: 2rem; }
+        .hero p.tagline { color: #666; margin: 0 auto 25px; font-size: 1.05rem; }
+
+        .btn-lapor-cepat {
+            display: inline-block; background: var(--gradient-bg); color: white;
+            padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.3); transition: all 0.3s ease; margin-bottom: 30px;
+            border: 2px solid transparent;
+        }
+        .btn-lapor-cepat:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0, 184, 148, 0.4); background: white; color: var(--primary-green); border-color: var(--primary-green); }
+
+        /* --- GALERI: TUMPUK -> MEKAR LURUS -> INFINITE SCROLL --- */
+        .hero-gallery-container {
+            position: relative; width: 100%; height: 220px; overflow: hidden;
+            margin: 20px 0 60px; cursor: pointer;
+        }
+        .hero-gallery-container::before, .hero-gallery-container::after {
+            content: ''; position: absolute; top: 0; width: 60px; height: 100%; z-index: 20; pointer-events: none;
+        }
+        .hero-gallery-container::before { left: 0; background: linear-gradient(to right, var(--light-bg), transparent); }
+        .hero-gallery-container::after { right: 0; background: linear-gradient(to left, var(--light-bg), transparent); }
+
+        .gallery-pic {
+            position: absolute; width: 260px; height: 160px; left: 50%; top: 50%;
+            margin-top: -80px; margin-left: -130px; object-fit: cover; border-radius: 6px;
+            border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); transform: translateX(0);
+        }
+        .gallery-pic:hover { box-shadow: 0 15px 30px rgba(0, 184, 148, 0.3); border-color: var(--secondary-green); z-index: 50 !important; }
+
+        @media (max-width: 768px) {
+            .hero-gallery-container { height: 160px; }
+            .gallery-pic { width: 180px; height: 110px; margin-top: -55px; margin-left: -90px; }
+        }
+
+        /* --- CARDS NILAI CEMARA --- */
+        .container { padding: 40px 20px; max-width: 1100px; margin: auto; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 40px; color: var(--dark-text); }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; }
+        .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; transition: all 0.3s ease; border-top: 4px solid var(--primary-green); border: 1px solid #f0f0f0; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 184, 148, 0.15); border-color: var(--secondary-green); }
+        .card h3 { color: var(--primary-green); margin-top: 0; }
+
+        /* --- FOOTER --- */
+        footer { text-align: center; padding: 40px 20px 20px; background: #222f3e; color: rgba(255,255,255,0.8); margin-top: 60px; border-top-left-radius: 30px; border-top-right-radius: 30px; }
+        .footer-text { margin-bottom: 20px; font-weight: 500; }
+        .midev-signature { font-size: 11px; opacity: 0.5; letter-spacing: 1px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+    <header data-aos="fade-down">
+        <div class="header-title">BERANI SPACE-PIK-R Cemara</div>
+        
+        <div class="header-right">
+            <a href="admin.html" class="btn-admin">🔒 <span>Admin</span></a>
+            
+            <div class="logos">
+                <img src="foto/logo-smanike.png" alt="Logo SMAN 1 Kedamean">
+                <img src="foto/logo-pikr.png" alt="Logo PIK-R">
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content-wrapper" data-aos="fade-up">
+            <h1>Mandiri • Mulia • Berdampak • Inovatif</h1>
+            <p class="tagline">Hadir sebagai ruang aman, suportif, dan kolaboratif bagi remaja untuk bertumbuh bersama.</p>
+            <a href="lapor.html" class="btn-lapor-cepat">Buat Laporan / Curhat di Sini 💬</a>
+        </div>
+
+        <div class="hero-gallery-container" id="galleryContainer" data-aos="zoom-in" data-aos-delay="300">
+            <img class="gallery-pic" src="foto/foto1.jpeg" alt="Kegiatan PIK-R 1">
+            <img class="gallery-pic" src="foto/foto2.jpeg" alt="Kegiatan PIK-R 2">
+            <img class="gallery-pic" src="foto/foto3.jpeg" alt="Kegiatan PIK-R 3">
+            <img class="gallery-pic" src="foto/foto4.jpeg" alt="Kegiatan PIK-R 4">
+            <img class="gallery-pic" src="foto/foto5.jpeg" alt="Kegiatan PIK-R 5">
+            <img class="gallery-pic" src="foto/foto6.jpeg" alt="Kegiatan PIK-R 6">
+            <img class="gallery-pic" src="foto/foto7.jpeg" alt="Kegiatan PIK-R 7">
+            <img class="gallery-pic" src="foto/foto8.jpeg" alt="Kegiatan PIK-R 8">
+            <img class="gallery-pic" src="foto/foto9.jpeg" alt="Kegiatan PIK-R 9">
+            <img class="gallery-pic" src="foto/foto10.jpeg" alt="Kegiatan PIK-R 10">
+        </div>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">🌟 Nilai CEMARA</h2>
+        <div class="grid-cards">
+            <div class="card" data-aos="fade-up" data-aos-delay="100">
+                <h3>🌿 Mandiri</h3>
+                <p>Mendorong remaja untuk mampu mengambil keputusan yang bijak dan bertanggung jawab.</p>
+            </div>
+            <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <h3>🌿 Mulia</h3>
+                <p>Menanamkan sikap berintegritas, beretika, dan saling menghargai.</p>
+            </div>
+            <div class="card" data-aos="fade-up" data-aos-delay="300">
+                <h3>🌿 Berdampak</h3>
+                <p>Memberikan kontribusi nyata bagi lingkungan sekolah dan masyarakat.</p>
+            </div>
+            <div class="card" data-aos="fade-up" data-aos-delay="400">
+                <h3>🌿 Inovatif</h3>
+                <p>Menghadirkan program dan pendekatan yang kreatif serta relevan.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p class="footer-text">CEMARA tumbuh untuk memberi teduh, mendengar, dan menguatkan.</p>
+        <p class="midev-signature">Dikembangkan oleh @MiDev2026 | SMAN 1 Kedamean</p>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // --- SCRIPT KOREOGRAFI GALERI ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const pics = document.querySelectorAll('.gallery-pic');
+            const container = document.getElementById('galleryContainer');
+            const totalPics = pics.length;
+            
+            const isMobile = window.innerWidth <= 768;
+            const picWidth = isMobile ? 180 : 260; 
+            const gap = isMobile ? 15 : 25; 
+            const step = picWidth + gap; 
+            
+            const totalWidth = totalPics * step;
+            const leftBound = -(totalWidth / 2); 
+
+            setTimeout(() => {
+                pics.forEach((pic, i) => {
+                    const targetX = (i - (totalPics - 1) / 2) * step;
+                    pic.style.transform = `translateX(${targetX}px)`;
+                    pic.dataset.x = targetX;
+                    pic.style.zIndex = totalPics - Math.abs(i - (totalPics - 1) / 2);
+                });
+            }, 2000);
+
+            setTimeout(() => {
+                pics.forEach(pic => {
+                    pic.style.transition = 'none';
+                    pic.addEventListener('mouseenter', () => pic.style.transform = `translateX(${pic.dataset.x}px) scale(1.05)`);
+                    pic.addEventListener('mouseleave', () => pic.style.transform = `translateX(${pic.dataset.x}px) scale(1)`);
+                });
+
+                let isPaused = false;
+                container.addEventListener('mouseenter', () => isPaused = true);
+                container.addEventListener('mouseleave', () => isPaused = false);
+                container.addEventListener('touchstart', () => isPaused = true);
+                container.addEventListener('touchend', () => isPaused = false);
+
+                function scrollLoop() {
+                    if (!isPaused) {
+                        pics.forEach(pic => {
+                            let currentX = parseFloat(pic.dataset.x);
+                            currentX -= (isMobile ? 0.8 : 1.2); 
+                            if (currentX < leftBound) {
+                                currentX += totalWidth;
+                            }
+                            pic.dataset.x = currentX;
+                            pic.style.transform = `translateX(${currentX}px)`;
+                        });
+                    }
+                    requestAnimationFrame(scrollLoop);
+                }
+                scrollLoop(); 
+                
+            }, 3600); 
+        });
+    </script>
+</body>
+</html>

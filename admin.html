@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - PIK-R CEMARA</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --primary-green: #00b894;
+            --secondary-green: #55efc4;
+            --dark-text: #2d3436;
+            --light-bg: #f4f9f4;
+            --danger: #ff7675;
+            --warning: #fdcb6e;
+            --info: #0984e3;
+        }
+
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--light-bg); color: var(--dark-text); }
+
+        /* --- HALAMAN LOGIN --- */
+        #loginScreen {
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        }
+        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        .login-box h2 { margin-top: 0; color: var(--primary-green); }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        .input-group select, .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins', sans-serif; box-sizing: border-box; transition: 0.3s; }
+        .input-group select:focus, .input-group input:focus { border-color: var(--primary-green); outline: none; }
+        .btn-login { width: 100%; padding: 15px; background: var(--dark-text); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: var(--primary-green); }
+
+        /* --- DASHBOARD ADMIN --- */
+        #dashboardScreen { display: none; }
+        
+        .navbar { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        .nav-brand { font-weight: 700; color: var(--primary-green); font-size: 1.2rem; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .role-badge { background: #eaf8f5; color: var(--primary-green); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .btn-logout { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .container { padding: 40px 5%; max-width: 1200px; margin: auto; }
+        
+        .table-container { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { background: #f8fbf9; color: var(--dark-text); font-weight: 600; }
+        tr:hover { background: #fafafa; }
+        
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: inline-block; }
+        .status-baru { background: #ffeaa7; color: #d35400; } 
+        .status-review { background: #81ecec; color: #00cec9; } 
+        .status-proses { background: #74b9ff; color: #0984e3; } 
+        .status-selesai { background: #55efc4; color: #00b894; } 
+
+        .select-status { padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-family: 'Poppins'; font-size: 0.85rem; cursor: pointer; background: #fff; width: 130px; }
+        .btn-update { background: var(--primary-green); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 5px; font-weight: bold; }
+        
+        /* TOMBOL BARU: BUKA & HAPUS */
+        .action-row { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-view { background: #74b9ff; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; flex: 1; transition: 0.3s;}
+        .btn-view:hover { background: #0984e3; }
+        .btn-delete { background: #ff7675; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; flex: 1; transition: 0.3s;}
+        .btn-delete:hover { background: #d63031; }
+
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>🔒 Portal Admin PIK-R</h2>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 30px;">Silakan masuk menggunakan akses khusus Anda.</p>
+            
+            <form id="formLogin">
+                <div class="input-group">
+                    <label>Masuk Sebagai:</label>
+                    <select id="loginRole" required>
+                        <option value="" disabled selected>Pilih Peran...</option>
+                        <option value="Guru BK">Guru BK</option>
+                        <option value="Konselor Sebaya">Konselor Sebaya PIK-R</option>
+                        <option value="Pembina PIK-R">Pembina PIK-R</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Kata Sandi:</label>
+                    <input type="password" id="loginPassword" placeholder="Masukkan password..." required>
+                </div>
+                <button type="submit" class="btn-login">Masuk ke Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboardScreen">
+        <nav class="navbar">
+            <div class="nav-brand">🌲 BPDAT CEMARA</div>
+            <div class="user-info">
+                <span class="role-badge" id="displayRole">Admin</span>
+                <button class="btn-logout" id="btnLogout">Keluar</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <h2 style="margin-bottom: 5px;">Rekap Kotak Curhat</h2>
+            <p style="color: #666; margin-bottom: 30px;">Hanya menampilkan laporan yang ditujukan kepada <strong id="filterTeks">Role</strong>.</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No. Resi</th>
+                            <th>Tanggal</th>
+                            <th>Nama</th>
+                            <th style="width: 30%;">Cuplikan Cerita</th>
+                            <th>Status Saat Ini</th>
+                            <th style="width: 20%;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="6" style="text-align: center;">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        // IMPORT BARU: deleteDoc untuk fitur hapus
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Konfigurasi Cakrawala-2045
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQvV7dUNdK6TZvrt4ShaEjRl0dmjfayT4",
+            authDomain: "cakrawala-2045.firebaseapp.com",
+            databaseURL: "https://cakrawala-2045-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "cakrawala-2045",
+            storageBucket: "cakrawala-2045.firebasestorage.app",
+            messagingSenderId: "326702290155",
+            appId: "1:326702290155:web:9483aec9f9c7661c489aae"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const akunAkses = {
+            "Guru BK": "bk123",
+            "Konselor Sebaya": "pikr123",
+            "Pembina PIK-R": "pembina123"
+        };
+
+        let currentRole = "";
+        
+        // VARIABEL GLOBAL BARU untuk menyimpan data sementara agar bisa dibuka di pop-up
+        window.laporanDataLocal = {};
+
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const role = document.getElementById('loginRole').value;
+            const pass = document.getElementById('loginPassword').value;
+
+            if (akunAkses[role] === pass) {
+                currentRole = role;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboardScreen').style.display = 'block';
+                document.getElementById('displayRole').innerText = role;
+                document.getElementById('filterTeks').innerText = role;
+                muatDataLaporan();
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Selamat datang, ${role}!`, showConfirmButton: false, timer: 2000 });
+            } else {
+                Swal.fire('Akses Ditolak', 'Kata sandi salah. Silakan coba lagi.', 'error');
+            }
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            currentRole = "";
+            document.getElementById('formLogin').reset();
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('dashboardScreen').style.display = 'none';
+        });
+
+        function formatTanggal(timestampFirebase) {
+            if(!timestampFirebase) return "-";
+            const date = timestampFirebase.toDate();
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+        }
+
+        async function muatDataLaporan() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Memuat data secara real-time...</td></tr>`;
+            window.laporanDataLocal = {}; // Reset data lokal
+
+            try {
+                const q = query(collection(db, "laporan"), where("tujuan", "==", currentRole));
+                const querySnapshot = await getDocs(q);
+                tbody.innerHTML = ""; 
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888;">Belum ada laporan masuk untuk Anda.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((documentSnapshot) => {
+                    const data = documentSnapshot.data();
+                    const docId = documentSnapshot.id; 
+                    
+                    // Simpan data utuh ke variabel window agar gampang dipanggil saat tombol Buka diklik
+                    window.laporanDataLocal[docId] = data;
+
+                    // Potong cerita jika terlalu panjang (lebih dari 40 karakter)
+                    let cuplikanCerita = data.cerita.length > 40 ? data.cerita.substring(0, 40) + '...' : data.cerita;
+
+                    let statusClass = "status-baru";
+                    if(data.status === "Sedang Direview") statusClass = "status-review";
+                    if(data.status === "Proses Tindak Lanjut") statusClass = "status-proses";
+                    if(data.status === "Selesai") statusClass = "status-selesai";
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${data.kode}</strong></td>
+                        <td style="font-size: 0.85rem; color:#666;">${formatTanggal(data.waktu)}</td>
+                        <td>${data.nama}</td>
+                        <td style="font-size: 0.9rem; font-style: italic;">"${cuplikanCerita}"</td>
+                        <td><span class="status-badge ${statusClass}">${data.status}</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center;">
+                                <select class="select-status" id="select-${docId}">
+                                    <option value="Laporan Diterima" ${data.status === 'Laporan Diterima' ? 'selected' : ''}>Diterima</option>
+                                    <option value="Sedang Direview" ${data.status === 'Sedang Direview' ? 'selected' : ''}>Direview</option>
+                                    <option value="Proses Tindak Lanjut" ${data.status === 'Proses Tindak Lanjut' ? 'selected' : ''}>Proses</option>
+                                    <option value="Selesai" ${data.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                                </select>
+                                <button class="btn-update" onclick="updateStatus('${docId}')">Simpan</button>
+                            </div>
+                            <div class="action-row">
+                                <button class="btn-view" onclick="bukaLaporan('${docId}')">👁️ Buka</button>
+                                <button class="btn-delete" onclick="hapusLaporan('${docId}')">🗑️ Hapus</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Gagal memuat data. Periksa koneksi atau Rules Firestore.</td></tr>`;
+            }
+        }
+
+        window.updateStatus = async function(docId) {
+            const dropdown = document.getElementById(`select-${docId}`);
+            const statusBaru = dropdown.value;
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            try {
+                const laporanRef = doc(db, "laporan", docId);
+                await updateDoc(laporanRef, { status: statusBaru });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Status diperbarui!', showConfirmButton: false, timer: 2000 });
+                muatDataLaporan();
+            } catch (error) {
+                Swal.fire('Gagal!', 'Terjadi kesalahan: ' + error.message, 'error');
+            }
+        }
+
+        // --- FUNGSI BARU: BUKA LAPORAN FULL ---
+        window.bukaLaporan = function(docId) {
+            const data = window.laporanDataLocal[docId];
+            
+            // Format tanggal ulang untuk ditampilkan di pop-up
+            let tanggalLengkap = "-";
+            if(data.waktu) {
+                const date = data.waktu.toDate();
+                tanggalLengkap = date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+            }
+
+            Swal.fire({
+                title: 'Detail Laporan',
+                html: `
+                    <div style="text-align: left; font-size: 0.95rem; line-height: 1.6;">
+                        <table style="width: 100%; margin-bottom: 15px;">
+                            <tr><td style="width: 100px; color:#666; border:none; padding:4px 0;"><strong>No. Resi</strong></td> <td style="border:none; padding:4px 0;">: <strong>${data.kode}</strong></td></tr>
+                            <tr><td style="color:#666; border:none; padding:4px 0;"><strong>Pengirim</strong></td> <td style="border:none; padding:4px 0;">: ${data.nama}</td></tr>
+                            <tr><td style="color:#666; border:none; padding:4px 0;"><strong>Waktu Masuk</strong></td> <td style="border:none; padding:4px 0;">: ${tanggalLengkap} WIB</td></tr>
+                            <tr><td style="color:#666; border:none; padding:4px 0;"><strong>Status</strong></td> <td style="border:none; padding:4px 0;">: <span style="color:var(--primary-green); font-weight:bold;">${data.status}</span></td></tr>
+                        </table>
+                        
+                        <p style="color:#666; margin-bottom:5px;"><strong>📝 Isi Cerita Laporan:</strong></p>
+                        <div style="background: #f8fbf9; padding: 15px; border-radius: 10px; border: 1px solid #e1e8e5; white-space: pre-wrap; font-family: 'Poppins'; text-align: justify;">${data.cerita}</div>
+                    </div>
+                `,
+                width: 600, // Pop up dibikin lebih lebar agar enak dibaca
+                confirmButtonText: 'Tutup Dokumen',
+                confirmButtonColor: '#00b894'
+            });
+        }
+
+        // --- FUNGSI BARU: HAPUS LAPORAN ---
+        window.hapusLaporan = async function(docId) {
+            Swal.fire({
+                title: 'Hapus Laporan ini?',
+                text: "Data yang sudah dihapus tidak bisa dikembalikan lagi!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff7675',
+                cancelButtonColor: '#b2bec3',
+                confirmButtonText: 'Ya, Hapus Data',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                    try {
+                        // Perintah Firebase untuk menghapus dokumen berdasarkan ID
+                        await deleteDoc(doc(db, "laporan", docId));
+                        
+                        Swal.fire('Terhapus!', 'Laporan telah berhasil dihapus dari database.', 'success');
+                        
+                        // Muat ulang tabel setelah dihapus
+                        muatDataLaporan();
+                    } catch (error) {
+                        Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus: ' + error.message, 'error');
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

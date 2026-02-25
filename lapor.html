@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Lapor & Curhat - PIK-R CEMARA</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --primary-green: #00b894;
+            --secondary-green: #55efc4;
+            --dark-text: #2d3436;
+            --light-bg: #f8fbf9;
+            --gradient-bg: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0; background-color: var(--light-bg); color: var(--dark-text);
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+
+        /* --- NAVIGASI --- */
+        nav {
+            width: 100%; padding: 20px; background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between;
+            align-items: center; box-sizing: border-box; position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn {
+            text-decoration: none; color: var(--dark-text); font-weight: 600;
+            background: #eaf8f5; padding: 8px 15px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem;
+        }
+        .back-btn:hover { background: var(--secondary-green); color: white; }
+
+        /* --- CONTAINER PORTAL --- */
+        .portal-container {
+            width: 90%; max-width: 600px; margin: 40px auto; background: #fff;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden; border: 1px solid rgba(0,184,148,0.2);
+        }
+
+        /* --- HEADER TAB --- */
+        .portal-header { display: flex; background: #f8fbf9; border-bottom: 2px solid #eee; }
+        .tab-btn {
+            flex: 1; padding: 20px; text-align: center; font-weight: 600;
+            cursor: pointer; transition: 0.3s; color: #888;
+        }
+        .tab-btn.active { color: var(--primary-green); background: #fff; border-bottom: 3px solid var(--primary-green); }
+
+        /* --- KONTEN TAB --- */
+        .tab-content { padding: 30px; display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- FORM STYLING --- */
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
+            font-family: 'Poppins', sans-serif; box-sizing: border-box; background: #fcfcfc; transition: 0.3s;
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: var(--primary-green); outline: none; background: #fff; }
+
+        .anon-toggle {
+            display: flex; align-items: center; background: #eaf8f5; padding: 15px;
+            border-radius: 10px; margin-bottom: 20px; border-left: 4px solid var(--primary-green); cursor: pointer;
+        }
+        .anon-toggle input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--primary-green); cursor: pointer;}
+        .anon-toggle label { cursor: pointer; font-weight: 600; color: var(--primary-green); font-size: 0.95rem; }
+
+        .btn-submit {
+            width: 100%; padding: 15px; background: var(--gradient-bg); color: white;
+            border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0, 184, 148, 0.2);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(0, 184, 148, 0.4); }
+
+        /* --- TIMELINE STATUS --- */
+        .timeline { margin-top: 30px; padding-left: 20px; border-left: 3px solid #ddd; display: none; }
+        .timeline-step { position: relative; margin-bottom: 25px; padding-left: 20px; opacity: 0.4; transition: 0.5s; }
+        .timeline-step::before {
+            content: ''; position: absolute; left: -29px; top: 0;
+            width: 16px; height: 16px; border-radius: 50%; background: #ddd; border: 4px solid #fff; transition: 0.5s;
+        }
+        .timeline-step.completed { opacity: 1; }
+        .timeline-step.completed::before { background: var(--primary-green); box-shadow: 0 0 10px rgba(0,184,148,0.5); }
+        .timeline-step.completed h4 { color: var(--primary-green); }
+        .timeline-step.active-step { opacity: 1; }
+        .timeline-step.active-step::before { background: #fdcb6e; border-color: #ffeaa7; box-shadow: 0 0 15px rgba(253, 203, 110, 0.8); }
+        .timeline-step.active-step h4 { color: #e1b12c; }
+        .timeline-step h4 { margin: 0 0 5px; font-size: 1rem; color: #888; transition: 0.5s; }
+        .timeline-step p { margin: 0; font-size: 0.85rem; color: #666; }
+
+        .midev-signature { font-size: 11px; color: #aaa; margin-top: auto; padding: 20px; letter-spacing: 1px; text-align: center;}
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="back-btn">⬅ Beranda</a>
+        <div style="font-weight: 700; color: var(--primary-green);">PIK-R CEMARA</div>
+    </nav>
+
+    <div class="portal-container">
+        <div class="portal-header">
+            <div class="tab-btn active" id="btnTabBuat">📝 Buat Laporan</div>
+            <div class="tab-btn" id="btnTabCek">🔍 Cek Status</div>
+        </div>
+
+        <div id="tab-buat" class="tab-content active">
+            <h3 style="margin-top:0; text-align: center;">Kirim Laporan Baru</h3>
+            
+            <form id="formLapor">
+                <div class="anon-toggle" id="boxAnonim">
+                    <input type="checkbox" id="anonim" checked>
+                    <label for="anonim">Kirim sebagai Anonim (Rahasia)</label>
+                </div>
+
+                <div class="input-group">
+                    <label>Nama (Sistem otomatis mengunci jika anonim)</label>
+                    <input type="text" id="namaPelapor" value="Anonim" disabled style="background:#eee; color:#888;">
+                </div>
+
+                <div class="input-group">
+                    <label>Laporan/Curhat ditujukan untuk siapa?</label>
+                    <select id="tujuanLaporan" required>
+                        <option value="" disabled selected>Pilih Tujuan...</option>
+                        <option value="Guru BK">Guru BK (Kasus Serius/Bullying)</option>
+                        <option value="Konselor Sebaya">Konselor Sebaya PIK-R (Curhat Teman/Asmara)</option>
+                        <option value="Pembina PIK-R">Pembina PIK-R (Konsultasi Karir/Kuliah)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Ceritakan Detailnya</label>
+                    <textarea id="isiCerita" rows="5" placeholder="Tuliskan keluh kesahmu dengan jujur di sini..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnKirim">Kirim & Dapatkan Kode 🚀</button>
+            </form>
+        </div>
+
+        <div id="tab-cek" class="tab-content">
+            <h3 style="margin-top:0; text-align: center;">Lacak Laporan Anda</h3>
+            <p style="text-align: center; font-size: 0.9rem; color: #666;">Masukkan kode resi (contoh: CMR-1234) yang didapat saat mengirim laporan.</p>
+
+            <div class="input-group">
+                <input type="text" id="inputKode" placeholder="CMR-XXXX" style="text-transform: uppercase; text-align: center; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">
+            </div>
+            <button id="btnLacak" class="btn-submit" style="background: #2d3436;">Lacak Sekarang 🔍</button>
+
+            <div id="areaTimeline" class="timeline">
+                <div class="timeline-step" id="step1">
+                    <h4>📥 Laporan Diterima</h4>
+                    <p>Sistem mencatat laporan Anda dengan aman.</p>
+                </div>
+                <div class="timeline-step" id="step2">
+                    <h4>👀 Sedang Direview</h4>
+                    <p>Tim PIK-R / Guru BK sedang membaca laporan.</p>
+                </div>
+                <div class="timeline-step" id="step3">
+                    <h4>💬 Proses Tindak Lanjut</h4>
+                    <p>Menunggu arahan/sesi pendampingan.</p>
+                </div>
+                <div class="timeline-step" id="step4">
+                    <h4>✅ Selesai</h4>
+                    <p>Kasus atau sesi konseling telah ditutup.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="midev-signature">Dikembangkan oleh @MiDev2026 | SMAN 1 Kedamean</div>
+
+    <script type="module">
+        // 1. Import Firebase Core & Firestore
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // 2. Firebase Config milik Cakrawala-2045
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQvV7dUNdK6TZvrt4ShaEjRl0dmjfayT4",
+            authDomain: "cakrawala-2045.firebaseapp.com",
+            databaseURL: "https://cakrawala-2045-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "cakrawala-2045",
+            storageBucket: "cakrawala-2045.firebasestorage.app",
+            messagingSenderId: "326702290155",
+            appId: "1:326702290155:web:9483aec9f9c7661c489aae"
+        };
+
+        // 3. Inisialisasi Aplikasi
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- DOM Elements ---
+        const btnTabBuat = document.getElementById('btnTabBuat');
+        const btnTabCek = document.getElementById('btnTabCek');
+        const tabBuat = document.getElementById('tab-buat');
+        const tabCek = document.getElementById('tab-cek');
+        const anonimCheckbox = document.getElementById('anonim');
+        const boxAnonim = document.getElementById('boxAnonim');
+        const inputNama = document.getElementById('namaPelapor');
+        const areaTimeline = document.getElementById('areaTimeline');
+
+        // --- LOGIKA TAB SWITCHER ---
+        function switchTab(target) {
+            btnTabBuat.classList.remove('active');
+            btnTabCek.classList.remove('active');
+            tabBuat.classList.remove('active');
+            tabCek.classList.remove('active');
+
+            if (target === 'buat') {
+                btnTabBuat.classList.add('active');
+                tabBuat.classList.add('active');
+                areaTimeline.style.display = 'none'; // Sembunyikan timeline
+            } else {
+                btnTabCek.classList.add('active');
+                tabCek.classList.add('active');
+            }
+        }
+
+        btnTabBuat.addEventListener('click', () => switchTab('buat'));
+        btnTabCek.addEventListener('click', () => switchTab('cek'));
+
+        // --- LOGIKA CHECKBOX ANONIM ---
+        function toggleAnonim() {
+            if (anonimCheckbox.checked) {
+                inputNama.value = 'Anonim';
+                inputNama.disabled = true;
+                inputNama.style.background = '#eee';
+                inputNama.style.color = '#888';
+            } else {
+                inputNama.value = '';
+                inputNama.disabled = false;
+                inputNama.style.background = '#fcfcfc';
+                inputNama.style.color = '#333';
+                inputNama.focus();
+            }
+        }
+        anonimCheckbox.addEventListener('change', toggleAnonim);
+        boxAnonim.addEventListener('click', (e) => {
+            if(e.target !== anonimCheckbox) {
+                anonimCheckbox.checked = !anonimCheckbox.checked;
+                toggleAnonim();
+            }
+        });
+
+        // --- LOGIKA KIRIM DATA KE FIREBASE ---
+        document.getElementById('formLapor').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
+            
+            const btnKirim = document.getElementById('btnKirim');
+            const nama = inputNama.value;
+            const tujuan = document.getElementById('tujuanLaporan').value;
+            const cerita = document.getElementById('isiCerita').value;
+            const kodeUnik = 'CMR-' + Math.floor(1000 + Math.random() * 9000);
+
+            // Munculkan Loading
+            Swal.fire({
+                title: 'Menyandikan Laporan...',
+                text: 'Harap tunggu sebentar',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                // Simpan ke Firestore, collection "laporan"
+                await addDoc(collection(db, "laporan"), {
+                    kode: kodeUnik,
+                    nama: nama,
+                    tujuan: tujuan,
+                    cerita: cerita,
+                    status: "Laporan Diterima", // Default
+                    waktu: serverTimestamp()
+                });
+
+                // Sukses
+                Swal.fire({
+                    title: 'Berhasil Terkirim!',
+                    html: `
+                        <p style="margin-bottom:10px;">Laporanmu telah diamankan di sistem.</p>
+                        <p style="color:#d63031; font-size:0.9rem; font-weight:bold;">⚠️ Simpan / Screenshot Kode Resi Ini:</p>
+                        <div style="background:#eaf8f5; padding:15px; border-radius:10px; border:2px dashed #00b894; margin-top:15px;">
+                            <span style="font-size:1.8rem; font-weight:900; color:#00b894; letter-spacing: 3px;">${kodeUnik}</span>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'Saya Sudah Menyimpannya',
+                    confirmButtonColor: '#00b894',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.reset();
+                        anonimCheckbox.checked = true;
+                        toggleAnonim();
+                        document.getElementById('inputKode').value = kodeUnik; 
+                        switchTab('cek'); 
+                    }
+                });
+            } catch (error) {
+                Swal.fire('Gagal Mengirim', 'Pastikan Rules Firebase Firestore sudah diset ke Test Mode. Detail: ' + error.message, 'error');
+            }
+        });
+
+        // --- LOGIKA CEK STATUS ---
+        document.getElementById('btnLacak').addEventListener('click', async function() {
+            const kodeInput = document.getElementById('inputKode').value.toUpperCase().trim();
+            
+            if(kodeInput === '') {
+                Swal.fire('Ups!', 'Masukkan kode laporanmu (contoh: CMR-1234).', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Mencari Data...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                // Mencari dokumen di Firestore dimana kolom 'kode' sama dengan inputan
+                const q = query(collection(db, "laporan"), where("kode", "==", kodeInput));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    let statusLaporan = "";
+                    querySnapshot.forEach((doc) => {
+                        statusLaporan = doc.data().status; 
+                    });
+
+                    Swal.close(); // Tutup loading
+
+                    // Tampilkan Timeline
+                    areaTimeline.style.display = 'block';
+
+                    // Reset semua step
+                    const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3'), document.getElementById('step4')];
+                    steps.forEach(step => {
+                        step.classList.remove('completed', 'active-step');
+                    });
+
+                    // Logika pewarnaan timeline berdasarkan status dari Firebase
+                    if (statusLaporan === "Laporan Diterima") {
+                        steps[0].classList.add('active-step');
+                    } 
+                    else if (statusLaporan === "Sedang Direview") {
+                        steps[0].classList.add('completed');
+                        steps[1].classList.add('active-step');
+                    } 
+                    else if (statusLaporan === "Proses Tindak Lanjut") {
+                        steps[0].classList.add('completed');
+                        steps[1].classList.add('completed');
+                        steps[2].classList.add('active-step');
+                    } 
+                    else if (statusLaporan === "Selesai") {
+                        steps[0].classList.add('completed');
+                        steps[1].classList.add('completed');
+                        steps[2].classList.add('completed');
+                        steps[3].classList.add('completed'); // Semua hijau
+                    }
+
+                } else {
+                    areaTimeline.style.display = 'none';
+                    Swal.fire('Tidak Ditemukan', 'Kode laporan salah atau tidak terdaftar di sistem. Coba cek lagi ya.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Gagal!', 'Terjadi kesalahan sistem: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
