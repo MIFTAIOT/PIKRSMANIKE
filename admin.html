@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Dashboard Admin - PIK-R CEMARA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root{--primary-green:#00b894;--secondary-green:#55efc4;--dark-text:#2d3436;--light-bg:#f4f9f4;--danger:#ff7675;--warning:#fdcb6e;--info:#0984e3}
+        body{font-family:'Poppins',sans-serif;margin:0;background-color:var(--light-bg);color:var(--dark-text)}
+        #loginScreen{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,var(--primary-green),var(--secondary-green))}
+        .login-box{background:#fff;padding:40px;border-radius:20px;box-shadow:0 15px 35px rgba(0,0,0,.2);width:100%;max-width:400px;text-align:center}
+        .login-box h2{margin-top:0;color:var(--primary-green)}
+        .input-group{margin-bottom:20px;text-align:left}
+        .input-group label{display:block;font-weight:600;margin-bottom:8px;font-size:.9rem}
+        .input-group select,.input-group input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-family:'Poppins',sans-serif;box-sizing:border-box;transition:.3s}
+        .input-group select:focus,.input-group input:focus{border-color:var(--primary-green);outline:none}
+        .btn-login{width:100%;padding:15px;background:var(--dark-text);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:.3s}
+        .btn-login:hover{background:var(--primary-green)}
+        #dashboardScreen{display:none}
+        .navbar{background:#fff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05);position:sticky;top:0;z-index:10}
+        .nav-brand{font-weight:700;color:var(--primary-green);font-size:1.2rem}
+        .user-info{display:flex;align-items:center;gap:15px}
+        .role-badge{background:#eaf8f5;color:var(--primary-green);padding:5px 15px;border-radius:20px;font-size:.85rem;font-weight:600}
+        .btn-logout{background:var(--danger);color:#fff;border:none;padding:8px 15px;border-radius:8px;cursor:pointer;font-weight:700}
+        .container{padding:40px 5%;max-width:1200px;margin:auto}
+        .table-container{background:#fff;border-radius:15px;padding:20px;box-shadow:0 10px 25px rgba(0,0,0,.05);overflow-x:auto}
+        table{width:100%;border-collapse:collapse;min-width:800px}
+        th,td{padding:15px;text-align:left;border-bottom:1px solid #eee;vertical-align:top}
+        th{background:#f8fbf9;color:var(--dark-text);font-weight:600}
+        tr:hover{background:#fafafa}
+        .status-badge{padding:6px 12px;border-radius:20px;font-size:.8rem;font-weight:700;display:inline-block}
+        .status-baru{background:#ffeaa7;color:#d35400}
+        .status-review{background:#81ecec;color:#00cec9}
+        .status-proses{background:#74b9ff;color:#0984e3}
+        .status-selesai{background:#55efc4;color:#00b894}
+        .select-status{padding:8px;border-radius:8px;border:1px solid #ddd;font-family:'Poppins';font-size:.85rem;cursor:pointer;background:#fff;width:130px}
+        .btn-update{background:var(--primary-green);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:.85rem;margin-left:5px;font-weight:700}
+        .action-row{display:flex;gap:8px;margin-top:10px}
+        .btn-view{background:#74b9ff;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;flex:1;transition:.3s}
+        .btn-view:hover{background:#0984e3}
+        .btn-delete{background:#ff7675;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;flex:1;transition:.3s}
+        .btn-delete:hover{background:#d63031}
+    </style>
+</head>
+<body>
+    <!-- PROTEKSI ANTI-INSPECT -->
+    <script>document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('keydown',e=>{if(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&e.key==='U'))e.preventDefault();});</script>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>🛡️ Portal Admin PIK-R</h2>
+            <p style="color:#666;font-size:.9rem;margin-bottom:30px">Akses khusus pengelola terenkripsi.</p>
+            <form id="formLogin">
+                <div class="input-group"><label>Masuk Sebagai:</label><select id="loginRole" required><option value="" disabled selected>Pilih Peran...</option><option value="Guru BK">Guru BK</option><option value="Konselor Sebaya">Konselor Sebaya PIK-R</option><option value="Pembina PIK-R">Pembina PIK-R</option></select></div>
+                <div class="input-group"><label>Kata Sandi:</label><input type="password" id="loginPassword" placeholder="***" required></div>
+                <button type="submit" class="btn-login">Otorisasi</button>
+            </form>
+        </div>
+    </div>
+    <div id="dashboardScreen">
+        <nav class="navbar"><div class="nav-brand">🛡️ BPDAT CEMARA</div><div class="user-info"><span class="role-badge" id="displayRole">Admin</span><button class="btn-logout" id="btnLogout">Keluar</button></div></nav>
+        <div class="container">
+            <h2 style="margin-bottom:5px">Rekap Kotak Curhat</h2>
+            <p style="color:#666;margin-bottom:30px">Menampilkan lalu lintas data aman untuk: <strong id="filterTeks">Role</strong>.</p>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>No. Resi</th><th>Tanggal</th><th>Nama</th><th style="width:30%">Cuplikan Cerita</th><th>Status Saat Ini</th><th style="width:20%">Aksi</th></tr></thead>
+                    <tbody id="tableBody"><tr><td colspan="6" style="text-align:center">Menyinkronkan data aman...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- OBFUSCATED JAVASCRIPT -->
+    <script type="module">
+        import{initializeApp as _0xinit}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";import{getFirestore as _0xfdb,collection as _0xcol,query as _0xq,where as _0xw,getDocs as _0xgd,doc as _0xdc,updateDoc as _0xud,deleteDoc as _0xdd}from"https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        const _0xconf=JSON.parse(atob("eyJhcGlLZXkiOiJBSXphU3lBUXZWN2RVTmRLNlRadnJ0NFNoYUVqUmwwZG1qZmF5VDQiLCJhdXRoRG9tYWluIjoiY2FrcmF3YWxhLTIwNDUuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL2Nha3Jhd2FsYS0yMDQ1LWRlZmF1bHQtcnRkYi5hc2lhLXNvdXRoZWFzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHAiLCJwcm9qZWN0SWQiOiJjYWtyYXdhbGEtMjA0NSIsInN0b3JhZ2VCdWNrZXQiOiJjYWtyYXdhbGEtMjA0NS5maXJlYmFzZXN0b3JhZ2UuYXBwIiwibWVzc2FnaW5nU2VuZGVySWQiOiIzMjY3MDIyOTAxNTUiLCJhcHBJZCI6IjE6MzI2NzAyMjkwMTU1OndlYjo5NDgzYWVjOWY5Yzc2NjFjNDg5YWFlIn0="));
+        const _0xapp=_0xinit(_0xconf);const _0xdb=_0xfdb(_0xapp);
+        const _0xacc=JSON.parse(atob("eyJHdXJ1IEJLIjoiYmsxMjMiLCJLb25zZWxvciBTZWJheWEiOiJwaWtyMTIzIiwiUGVtYmluYSBQSUstUiI6InBlbWJpbmExMjMifQ=="));
+        let _0xcr="";window._0xld={};
+        document.getElementById('formLogin').addEventListener('submit',_0xe=>{_0xe.preventDefault();const _0xr=document.getElementById('loginRole').value;const _0xp=document.getElementById('loginPassword').value;if(_0xacc[_0xr]===_0xp){_0xcr=_0xr;document.getElementById('loginScreen').style.display='none';document.getElementById('dashboardScreen').style.display='block';document.getElementById('displayRole').innerText=_0xr;document.getElementById('filterTeks').innerText=_0xr;_0xmd();Swal.fire({toast:true,position:'top-end',icon:'success',title:`Otorisasi ${_0xr} diterima`,showConfirmButton:false,timer:2000})}else{Swal.fire('Ditolak','Kredensial tidak valid.','error')}});
+        document.getElementById('btnLogout').addEventListener('click',()=>{_0xcr="";document.getElementById('formLogin').reset();document.getElementById('loginScreen').style.display='flex';document.getElementById('dashboardScreen').style.display='none'});
+        const _0xft=_0xts=>{if(!_0xts)return"-";return _0xts.toDate().toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})};
+        async function _0xmd(){const _0xtb=document.getElementById('tableBody');_0xtb.innerHTML=`<tr><td colspan="6" style="text-align:center">Memuat...</td></tr>`;window._0xld={};try{const _0xqy=_0xq(_0xcol(_0xdb,"laporan"),_0xw("tujuan","==",_0xcr));const _0xqs=await _0xgd(_0xqy);_0xtb.innerHTML="";if(_0xqs.empty){_0xtb.innerHTML=`<tr><td colspan="6" style="text-align:center;color:#888">Nihil.</td></tr>`;return}_0xqs.forEach(_0xds=>{const _0xd=_0xds.data();const _0xid=_0xds.id;window._0xld[_0xid]=_0xd;let _0xc=_0xd.cerita.length>40?_0xd.cerita.substring(0,40)+'...':_0xd.cerita;let _0xsc="status-baru";if(_0xd.status==="Sedang Direview")_0xsc="status-review";if(_0xd.status==="Proses Tindak Lanjut")_0xsc="status-proses";if(_0xd.status==="Selesai")_0xsc="status-selesai";const _0xtr=document.createElement('tr');_0xtr.innerHTML=`<td><strong>${_0xd.kode}</strong></td><td style="font-size:.85rem;color:#666">${_0xft(_0xd.waktu)}</td><td>${_0xd.nama}</td><td style="font-size:.9rem;font-style:italic">"${_0xc}"</td><td><span class="status-badge ${_0xsc}">${_0xd.status}</span></td><td><div style="display:flex;align-items:center"><select class="select-status" id="select-${_0xid}"><option value="Laporan Diterima" ${_0xd.status==='Laporan Diterima'?'selected':''}>Diterima</option><option value="Sedang Direview" ${_0xd.status==='Sedang Direview'?'selected':''}>Direview</option><option value="Proses Tindak Lanjut" ${_0xd.status==='Proses Tindak Lanjut'?'selected':''}>Proses</option><option value="Selesai" ${_0xd.status==='Selesai'?'selected':''}>Selesai</option></select><button class="btn-update" onclick="_0xus('${_0xid}')">Simpan</button></div><div class="action-row"><button class="btn-view" onclick="_0xbl('${_0xid}')">Buka</button><button class="btn-delete" onclick="_0xhl('${_0xid}')">Hapus</button></div></td>`;_0xtb.appendChild(_0xtr)})}catch(_0xerr){console.error(_0xerr);_0xtb.innerHTML=`<tr><td colspan="6" style="text-align:center;color:red">Gagal memuat.</td></tr>`}}
+        window._0xus=async function(_0xid){const _0xsb=document.getElementById(`select-${_0xid}`).value;Swal.fire({title:'Menyimpan...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading()}});try{await _0xud(_0xdc(_0xdb,"laporan",_0xid),{status:_0xsb});Swal.fire({toast:true,position:'top-end',icon:'success',title:'Tersimpan',showConfirmButton:false,timer:2000});_0xmd()}catch(_0xerr){Swal.fire('Gagal!',_0xerr.message,'error')}};
+        window._0xbl=function(_0xid){const _0xd=window._0xld[_0xid];let _0xtl="-";if(_0xd.waktu){_0xtl=_0xd.waktu.toDate().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}Swal.fire({title:'Detail Laporan',html:`<div style="text-align:left;font-size:.95rem;line-height:1.6"><table style="width:100%;margin-bottom:15px"><tr><td style="width:100px;color:#666;border:none;padding:4px 0"><strong>Resi</strong></td><td style="border:none;padding:4px 0">: <strong>${_0xd.kode}</strong></td></tr><tr><td style="color:#666;border:none;padding:4px 0"><strong>Pengirim</strong></td><td style="border:none;padding:4px 0">: ${_0xd.nama}</td></tr><tr><td style="color:#666;border:none;padding:4px 0"><strong>Waktu</strong></td><td style="border:none;padding:4px 0">: ${_0xtl} WIB</td></tr><tr><td style="color:#666;border:none;padding:4px 0"><strong>Status</strong></td><td style="border:none;padding:4px 0">: <span style="color:var(--primary-green);font-weight:700">${_0xd.status}</span></td></tr></table><p style="color:#666;margin-bottom:5px"><strong>Isi Laporan:</strong></p><div style="background:#f8fbf9;padding:15px;border-radius:10px;border:1px solid #e1e8e5;white-space:pre-wrap;font-family:'Poppins';text-align:justify">${_0xd.cerita}</div></div>`,width:600,confirmButtonText:'Tutup',confirmButtonColor:'#00b894'})};
+        window._0xhl=async function(_0xid){Swal.fire({title:'Hapus Data?',text:"Tindakan ini permanen.",icon:'warning',showCancelButton:true,confirmButtonColor:'#ff7675',cancelButtonColor:'#b2bec3',confirmButtonText:'Eksekusi',cancelButtonText:'Batal'}).then(async(_0xr)=>{if(_0xr.isConfirmed){Swal.fire({title:'Menghapus...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading()}});try{await _0xdd(_0xdc(_0xdb,"laporan",_0xid));Swal.fire('Terhapus!','Data dihanguskan.','success');_0xmd()}catch(_0xerr){Swal.fire('Gagal!',_0xerr.message,'error')}}})};
+    </script>
+</body>
+</html>
